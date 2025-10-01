@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora TSO Electric Vehicles Experience - Costa Rica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --cr-blue: #003366;
+            --cr-green: #009639;
+            --cr-red: #CE1126;
+            --cr-gold: #FFD700;
+            --cr-light: #F8F9FA;
+            --cr-dark: #1A1A1A;
+            --cr-dark-secondary: #2C2C2C;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cr-light);
+            color: var(--cr-dark);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: var(--cr-dark);
+            color: var(--cr-light);
+        }
+        body.dark-mode .dark\:bg-cr-dark-secondary {
+            background-color: var(--cr-dark-secondary);
+        }
+        body.dark-mode .dark\:border-gray-600 {
+            border-color: #4a5568;
+        }
+        body.dark-mode .dark\:text-gray-300 {
+            color: #d1d5db;
+        }
+         body.dark-mode .dark\:text-white {
+            color: #ffffff;
+        }
+        body.dark-mode input, body.dark-mode select {
+            background-color: var(--cr-dark-secondary);
+            border-color: #4a5568;
+        }
+
+        .cr-gradient-text {
+            background: linear-gradient(to right, var(--cr-blue), var(--cr-green), var(--cr-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--cr-blue);
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #004488;
+        }
+        .btn-primary:disabled {
+            background-color: #00336699;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background-color: var(--cr-green);
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #00a649;
+        }
+        
+        /* Custom Slider Styles with Visual Marks */
+        .slider-container {
+            position: relative;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        body.dark-mode input[type="range"] {
+             background: #4a5568;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--cr-blue);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--cr-blue);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        /* Visual marks on sliders */
+        .slider-marks {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: -5px;
+            margin-bottom: 8px;
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .optimal-mark {
+            position: absolute;
+            top: -15px;
+            font-size: 9px;
+            color: var(--cr-green);
+            font-weight: 600;
+            background: rgba(0, 150, 57, 0.1);
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: var(--cr-dark);
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            font-size: 12px;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .tooltip .tooltip-text {
+            background-color: var(--cr-light);
+            color: var(--cr-dark);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--cr-dark) transparent transparent transparent;
+        }
+
+        body.dark-mode .tooltip .tooltip-text::after {
+            border-color: var(--cr-light) transparent transparent transparent;
+        }
+        
+        /* Input validation states */
+        .input-valid {
+            border-color: var(--cr-green) !important;
+            box-shadow: 0 0 0 1px rgba(0, 150, 57, 0.1);
+        }
+        
+        .input-warning {
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.1);
+        }
+        
+        .input-error {
+            border-color: var(--cr-red) !important;
+            box-shadow: 0 0 0 1px rgba(206, 17, 38, 0.1);
+        }
+        
+        /* Preset buttons */
+        .preset-btn {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--cr-blue);
+            transition: all 0.2s;
+        }
+        
+        .preset-btn:hover {
+            background: var(--cr-blue);
+            color: white;
+        }
+        
+        body.dark-mode .preset-btn {
+            color: var(--cr-gold);
+        }
+        
+        body.dark-mode .preset-btn:hover {
+            background: var(--cr-gold);
+            color: var(--cr-dark);
+        }
+        
+        /* Live preview */
+        .live-preview {
+            background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+            border-left: 4px solid var(--cr-blue);
+            animation: subtle-pulse 3s infinite;
+        }
+        
+        body.dark-mode .live-preview {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-left-color: var(--cr-gold);
+        }
+        
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+        }
+        
+        /* Calculation progress */
+        .calc-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--cr-blue);
+        }
+        
+        .step-indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .step-indicator.active {
+            border-color: var(--cr-blue);
+            background: var(--cr-blue);
+            color: white;
+        }
+        
+        .step-indicator.complete {
+            border-color: var(--cr-green);
+            background: var(--cr-green);
+            color: white;
+        }
+        
+        /* Subtle animations */
+        .subtle-glow {
+            animation: glow 0.5s ease-in-out;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+            50% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.3); }
+            100% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        
+        /* Counter animation */
+        .animated-counter {
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+            z-index: 1000;
+        }
+        .notification.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        #errorMessage { background-color: var(--cr-red); }
+        #successMessage { background-color: var(--cr-green); }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="transition-colors duration-300">
+
+    <!-- Notifications -->
+    <div id="errorMessage" class="notification"></div>
+    <div id="successMessage" class="notification"></div>
+
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold cr-gradient-text">TSO Electric Vehicles Experience</h1>
+                <p class="text-gray-500 dark:text-gray-400">Análisis de Costo Total de Propiedad en Costa Rica</p>
+                <div class="mt-1">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Datos Oficiales ICE 2025
+                    </span>
+                </div>
+            </div>
+            <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cr-blue">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <!-- Input Form -->
+            <section class="lg:col-span-2 bg-white dark:bg-cr-dark-secondary p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6 border-b-2 border-cr-blue pb-2">Parámetros de Análisis</h2>
+                
+                <!-- Live Preview Card -->
+                <div id="livePreview" class="live-preview p-3 rounded-lg mb-6 hidden">
+                    <div class="text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700 dark:text-blue-200">TSO Estimado:</span>
+                            <span id="livePreviewValue" class="font-bold text-lg text-blue-800 dark:text-blue-100 animated-counter">$0</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-blue-600 dark:text-blue-300">Por kilómetro:</span>
+                            <span id="livePreviewPerKm" class="font-semibold text-blue-700 dark:text-blue-200">$0.000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calculation Progress -->
+                <div id="calculationProgress" class="hidden mb-4">
+                    <div class="calc-progress">
+                        <div id="step1" class="step-indicator active">1</div>
+                        <span class="text-sm">Validando datos...</span>
+                    </div>
+                </div>
+                
+                <form id="tsoForm" class="space-y-6">
+                    <div>
+                        <label for="vehiclePrice" class="block font-semibold mb-1">
+                            Precio del Vehículo (USD)
+                            <span class="tooltip text-blue-500 cursor-help ml-1">ℹ️
+                                <span class="tooltip-text">
+                                    <strong>Incluye:</strong><br>
+                                    • Impuestos de importación<br>
+                                    • IVA (13%)<br>
+                                    • Gastos de nacionalización<br><br>
+                                    <strong>Rango típico Costa Rica:</strong><br>
+                                    • Compacto: $25,000 - $35,000<br>
+                                    • SUV: $40,000 - $65,000<br>
+                                    • Premium: $70,000+<br><br>
+                                    <em>No incluye accesorios opcionales</em>
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="vehiclePrice" name="vehiclePrice" class="w-full p-2 border rounded-md dark:border-gray-600" placeholder="Ej: 45000" min="5000" max="150000" required>
+                        <div id="priceValidation" class="mt-1 text-xs"></div>
+                    </div>
+                    
+                    <div>
+                        <label for="vehicleModel" class="block font-semibold mb-1">
+                            Modelo del Vehículo
+                            <span class="tooltip text-blue-500 cursor-help ml-1">ℹ️
+                                <span class="tooltip-text">
+                                    <strong>Modelos disponibles en CR:</strong><br><br>
+                                    <strong>Sedán:</strong> AION S, HYPTEC GT<br>
+                                    <strong>Compacto:</strong> AION UT, Wuling EV50<br>
+                                    <strong>SUV:</strong> AION V, AION Y Plus<br>
+                                    <strong>Pickup/Trabajo:</strong> HYPTEC HT, Wuling Yangwang<br><br>
+                                    <em>Consumos basados en ciclo EPA</em>
+                                </span>
+                            </span>
+                        </label>
+                        <select id="vehicleModel" name="vehicleModel" class="w-full p-2 border rounded-md dark:border-gray-600" required>
+                            <!-- Options will be populated by JS -->
+                        </select>
+                        <div id="modelInfo" class="mt-1 text-xs text-gray-600 dark:text-gray-400"></div>
+                    </div>
+                    
+                    <div>
+                        <label for="annualKm" class="block font-semibold mb-1">
+                            Kilometraje Anual
+                            <span class="tooltip text-blue-500 cursor-help ml-1">ℹ️
+                                <span class="tooltip-text">
+                                    <strong>Promedio Costa Rica:</strong> 18,500 km/año<br><br>
+                                    <strong>Perfiles típicos:</strong><br>
+                                    • Urbano: 8,000-15,000 km<br>
+                                    • Mixto: 15,000-25,000 km<br>
+                                    • Intensivo: 25,000+ km<br><br>
+                                    <strong>Impacto en TSO:</strong><br>
+                                    Mayor kilometraje = menor costo/km
+                                </span>
+                            </span>
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="annualKm" name="annualKm" min="5000" max="40000" step="1000" value="15000" class="w-full">
+                            <div class="slider-marks">
+                                <span>5k</span>
+                                <span>15k</span>
+                                <span class="optimal-mark" style="left: 32%;">Óptimo</span>
+                                <span>25k</span>
+                                <span>40k</span>
+                            </div>
+                        </div>
+                        <div class="text-center font-bold text-cr-blue dark:text-cr-gold mt-1"><span id="annualKmValue">15,000</span> km</div>
+                        <div id="kmRecommendation" class="mt-1 text-xs text-center"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-semibold mb-1">
+                            Período de Análisis
+                            <span class="tooltip text-blue-500 cursor-help ml-1">ℹ️
+                                <span class="tooltip-text">
+                                    <strong>5 años:</strong><br>
+                                    • Análisis estándar<br>
+                                    • Garantía vigente<br>
+                                    • Menor depreciación<br><br>
+                                    <strong>10 años:</strong><br>
+                                    • Análisis extendido<br>
+                                    • Mayor precisión TSO<br>
+                                    • Incluye post-garantía
+                                </span>
+                            </span>
+                        </label>
+                        <div class="flex gap-4">
+                            <label class="flex-1"><input type="radio" name="analysisPeriod" value="5" checked class="mr-2">5 años</label>
+                            <label class="flex-1"><input type="radio" name="analysisPeriod" value="10" class="mr-2">10 años</label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-semibold mb-1">
+                            Distribución de Carga
+                            <span class="tooltip text-blue-500 cursor-help ml-1">ℹ️
+                                <span class="tooltip-text">
+                                    <strong>Carga AC (Residencial):</strong><br>
+                                    • ₡65/kWh - ICE Tarifa T-1<br>
+                                    • 7kW máximo típico<br>
+                                    • Óptimo para uso nocturno<br><br>
+                                    <strong>Carga DC (Rápida):</strong><br>
+                                    • ₡154.81/minuto<br>
+                                    • 50-150kW disponibles<br>
+                                    • Para viajes largos<br><br>
+                                    <strong>Recomendado:</strong> 80% AC / 20% DC
+                                </span>
+                            </span>
+                        </label>
+                        
+                        <!-- Presets -->
+                        <div class="flex justify-between text-xs mb-2">
+                            <button type="button" onclick="setChargingPreset('urban')" class="preset-btn">🏙️ Urbano</button>
+                            <button type="button" onclick="setChargingPreset('mixed')" class="preset-btn">🛣️ Mixto</button>
+                            <button type="button" onclick="setChargingPreset('highway')" class="preset-btn">🚗 Carretera</button>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div>
+                                <label for="acCharge" class="text-sm">Carga Residencial (AC)</label>
+                                <div class="slider-container">
+                                    <input type="range" id="acCharge" name="acCharge" min="0" max="100" step="5" value="80">
+                                    <div class="slider-marks">
+                                        <span>0%</span>
+                                        <span class="optimal-mark" style="left: 80%;">Óptimo</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                                <div class="text-center font-semibold text-cr-green"><span id="acChargeValue">80</span>%</div>
+                            </div>
+                            <div>
+                                <label for="dcCharge" class="text-sm">Carga Rápida (DC)</label>
+                                <div class="slider-container">
+                                    <input type="range" id="dcCharge" name="dcCharge" min="0" max="100" step="5" value="20">
+                                    <div class="slider-marks">
+                                        <span>0%</span>
+                                        <span>50%</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                                <div class="text-center font-semibold text-cr-red"><span id="dcChargeValue">20</span>%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="calculateButton" class="w-full btn-primary font-bold py-3 rounded-lg text-lg">Calcular TSO</button>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="lg:col-span-3 hidden">
+                <div id="simplifiedSummary" class="bg-white dark:bg-cr-dark-secondary p-6 rounded-2xl shadow-lg">
+                    <!-- JS will populate this with the simplified analysis -->
+                </div>
+                <button id="exportPdfButton" class="w-full btn-secondary font-bold py-3 rounded-lg text-lg mt-6">Exportar a PDF</button>
+            </section>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- DATA STRUCTURES ---
+        const vehicleSpecs = {
+            "AION S": { consumption_kwh_100km: 12.5, dc_power_kw: 60, battery_kwh: 58.8, category: "sedan", price_range: [28000, 35000] },
+            "AION UT": { consumption_kwh_100km: 11.4, dc_power_kw: 60, battery_kwh: 44.1, category: "compact", price_range: [22000, 28000] },
+            "AION V": { consumption_kwh_100km: 17.2, dc_power_kw: 100, battery_kwh: 75.3, category: "suv", price_range: [45000, 65000] },
+            "AION Y Plus": { consumption_kwh_100km: 13.3, dc_power_kw: 60, battery_kwh: 63.2, category: "suv", price_range: [38000, 48000] },
+            "HYPTEC HT": { consumption_kwh_100km: 18.2, dc_power_kw: 150, battery_kwh: 83.3, category: "truck", price_range: [55000, 75000] },
+            "HYPTEC GT": { consumption_kwh_100km: 12.7, dc_power_kw: 150, battery_kwh: 83.3, category: "sedan", price_range: [50000, 70000] },
+            "Wuling EV50": { consumption_kwh_100km: 14.0, dc_power_kw: 60, battery_kwh: 41.0, category: "compact", price_range: [18000, 25000] },
+            "Wuling Yangwang": { consumption_kwh_100km: 15.8, dc_power_kw: 60, battery_kwh: 41.9, category: "pickup", price_range: [32000, 42000] }
+        };
+        
+        const costaRicaRates = {
+            ac_residential_crc_kwh: 65,
+            dc_fast_crc_minute: 154.81,
+            exchange_rate: 504,
+            gasoline_crc_liter: 762,
+            insurance_base_usd: 800,
+            insurance_ev_discount: 0.15,
+            insurance_inflation_rate: 0.04,
+            general_inflation_rate: 0.03,
+            electricity_inflation_rate: 0.03,
+            gasoline_inflation_rate: 0.05
+        };
+        
+        const depreciationCurves = {
+            ev: { 1: 0.20, 2: 0.32, 3: 0.42, 4: 0.48, 5: 0.52, 6: 0.56, 7: 0.60, 8: 0.62, 9: 0.64, 10: 0.65 },
+            ice: { 1: 0.25, 2: 0.40, 3: 0.50, 4: 0.58, 5: 0.65, 6: 0.70, 7: 0.75, 8: 0.78, 9: 0.82, 10: 0.85 },
+            ev_optimistic: { 1: 0.15, 2: 0.25, 3: 0.35, 4: 0.42, 5: 0.47, 6: 0.51, 7: 0.55, 8: 0.58, 9: 0.60, 10: 0.62 },
+            ev_pessimistic: { 1: 0.25, 2: 0.38, 3: 0.48, 4: 0.55, 5: 0.60, 6: 0.64, 7: 0.68, 8: 0.70, 9: 0.72, 10: 0.75 }
+        };
+        
+        const marchamoTaxBrackets = [
+            { min: 0, max: 6000000, rate: 0.015 },
+            { min: 6000001, max: 12000000, rate: 0.020 },
+            { min: 12000001, max: 25000000, rate: 0.025 },
+            { min: 25000001, max: 999999999, rate: 0.030 }
+        ];
+        
+        const chargingPresets = {
+            urban: { ac: 85, dc: 15, description: "Óptimo para ciudad" },
+            mixed: { ac: 70, dc: 30, description: "Balance ciudad-carretera" },
+            highway: { ac: 50, dc: 50, description: "Viajes largos frecuentes" }
+        };
+
+        // --- DOM ELEMENTS ---
+        const form = document.getElementById('tsoForm');
+        const vehicleModelSelect = document.getElementById('vehicleModel');
+        const annualKmSlider = document.getElementById('annualKm');
+        const annualKmValue = document.getElementById('annualKmValue');
+        const acChargeSlider = document.getElementById('acCharge');
+        const acChargeValue = document.getElementById('acChargeValue');
+        const dcChargeSlider = document.getElementById('dcCharge');
+        const dcChargeValue = document.getElementById('dcChargeValue');
+        const resultsSection = document.getElementById('resultsSection');
+        const calculateButton = document.getElementById('calculateButton');
+        const exportPdfButton = document.getElementById('exportPdfButton');
+        const livePreview = document.getElementById('livePreview');
+        const livePreviewValue = document.getElementById('livePreviewValue');
+        const livePreviewPerKm = document.getElementById('livePreviewPerKm');
+        let lastResults = null;
+        let liveUpdateTimeout = null;
+        
+        // --- INITIALIZATION ---
+        function initializeApp() {
+            // Populate vehicle models
+            Object.keys(vehicleSpecs).forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                vehicleModelSelect.appendChild(option);
+            });
+            
+            // Load saved preferences
+            loadUserPreferences();
+            
+            // Init dark mode
+            initializeDarkMode();
+            
+            // Init event listeners
+            setupEventListeners();
+            
+            // Init live preview
+            setupLivePreview();
+        }
+
+        // --- USER PREFERENCES ---
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('tsoCalculatorPrefs');
+            if (saved) {
+                try {
+                    const prefs = JSON.parse(saved);
+                    if (prefs.vehiclePrice) document.getElementById('vehiclePrice').value = prefs.vehiclePrice;
+                    if (prefs.vehicleModel) document.getElementById('vehicleModel').value = prefs.vehicleModel;
+                    if (prefs.annualKm) {
+                        document.getElementById('annualKm').value = prefs.annualKm;
+                        updateSliderValues();
+                    }
+                    if (prefs.acCharge) {
+                        document.getElementById('acCharge').value = prefs.acCharge;
+                        document.getElementById('dcCharge').value = 100 - prefs.acCharge;
+                        updateSliderValues();
+                    }
+                } catch (e) {
+                    console.log('Error loading preferences:', e);
+                }
+            }
+        }
+
+        function saveUserPreferences() {
+            const prefs = {
+                vehiclePrice: document.getElementById('vehiclePrice').value,
+                vehicleModel: document.getElementById('vehicleModel').value,
+                annualKm: document.getElementById('annualKm').value,
+                acCharge: document.getElementById('acCharge').value,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('tsoCalculatorPrefs', JSON.stringify(prefs));
+        }
+
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            // Price validation
+            document.getElementById('vehiclePrice').addEventListener('input', (e) => {
+                validatePrice(e.target);
+                updateLivePreviewDebounced();
+                saveUserPreferences();
+            });
+
+            // Model selection
+            vehicleModelSelect.addEventListener('change', (e) => {
+                updateModelInfo(e.target.value);
+                updateLivePreviewDebounced();
+                saveUserPreferences();
+            });
+
+            // Sliders
+            annualKmSlider.addEventListener('input', (e) => {
+                updateSliderValues();
+                updateKmRecommendation(parseInt(e.target.value));
+                updateLivePreviewDebounced();
+                saveUserPreferences();
+            });
+
+            acChargeSlider.addEventListener('input', (e) => {
+                const acValue = parseInt(e.target.value);
+                const dcValue = 100 - acValue;
+                dcChargeSlider.value = dcValue;
+                updateSliderValues();
+                updateLivePreviewDebounced();
+                saveUserPreferences();
+            });
+
+            dcChargeSlider.addEventListener('input', (e) => {
+                const dcValue = parseInt(e.target.value);
+                const acValue = 100 - dcValue;
+                acChargeSlider.value = acValue;
+                updateSliderValues();
+                updateLivePreviewDebounced();
+                saveUserPreferences();
+            });
+            
+            // Form submission
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                calculateTSOSafely();
+            });
+
+            // Export PDF
+            exportPdfButton.addEventListener('click', () => {
+                if (lastResults) {
+                    exportToPDF(lastResults);
+                } else {
+                    showErrorMessage('Debe realizar un cálculo antes de exportar.');
+                }
+            });
+
+            // Period selection
+            document.querySelectorAll('input[name="analysisPeriod"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    updateLivePreviewDebounced();
+                    saveUserPreferences();
+                });
+            });
+        }
+
+        // --- CHARGING PRESETS ---
+        window.setChargingPreset = function(presetType) {
+            const preset = chargingPresets[presetType];
+            if (preset) {
+                acChargeSlider.value = preset.ac;
+                dcChargeSlider.value = preset.dc;
+                updateSliderValues();
+                updateLivePreviewDebounced();
+                saveUserPreferences();
+                
+                showSuccessMessage(`Preset "${preset.description}" aplicado`);
+            }
+        };
+
+        // --- VALIDATION FUNCTIONS (SIMPLIFIED - REMOVED PRICE RANGE CHECK) ---
+        function validatePrice(input) {
+            const price = parseFloat(input.value);
+            const validationDiv = document.getElementById('priceValidation');
+            
+            input.classList.remove('input-valid', 'input-warning', 'input-error');
+            
+            if (!price || price < 5000) {
+                input.classList.add('input-error');
+                validationDiv.innerHTML = '<span class="text-red-600">⚠️ Precio mínimo: $5,000</span>';
+            } else if (price > 150000) {
+                input.classList.add('input-error');
+                validationDiv.innerHTML = '<span class="text-red-600">⚠️ Precio máximo: $150,000</span>';
+            } else {
+                input.classList.add('input-valid');
+                validationDiv.innerHTML = '<span class="text-green-600">✅ Precio válido</span>';
+            }
+        }
+
+        function updateModelInfo(model) {
+            const infoDiv = document.getElementById('modelInfo');
+            if (model && vehicleSpecs[model]) {
+                const spec = vehicleSpecs[model];
+                const categoryNames = {
+                    sedan: 'Sedán',
+                    compact: 'Compacto', 
+                    suv: 'SUV',
+                    truck: 'Pickup',
+                    pickup: 'Pickup'
+                };
+                infoDiv.innerHTML = `
+                    <span class="text-blue-600 dark:text-blue-400">
+                        ${categoryNames[spec.category]} • ${spec.consumption_kwh_100km} kWh/100km • 
+                        Batería: ${spec.battery_kwh} kWh • DC: ${spec.dc_power_kw}kW
+                    </span>
+                `;
+            } else {
+                infoDiv.innerHTML = '';
+            }
+        }
+
+        function updateKmRecommendation(km) {
+            const recDiv = document.getElementById('kmRecommendation');
+            if (km < 10000) {
+                recDiv.innerHTML = '<span class="text-yellow-600">💡 Bajo kilometraje: considere leasing</span>';
+            } else if (km > 30000) {
+                recDiv.innerHTML = '<span class="text-blue-600">🚗 Alto kilometraje: excelente para EVs</span>';
+            } else if (km >= 15000 && km <= 25000) {
+                recDiv.innerHTML = '<span class="text-green-600">✅ Kilometraje óptimo para TSO</span>';
+            } else {
+                recDiv.innerHTML = '<span class="text-gray-500">📊 Promedio Costa Rica: 18,500 km/año</span>';
+            }
+        }
+
+        // --- LIVE PREVIEW ---
+        function setupLivePreview() {
+            // Show preview after user starts interacting
+            setTimeout(() => {
+                livePreview.classList.remove('hidden');
+                updateLivePreview();
+            }, 1000);
+        }
+
+        function updateLivePreviewDebounced() {
+            clearTimeout(liveUpdateTimeout);
+            liveUpdateTimeout = setTimeout(updateLivePreview, 300);
+        }
+
+        function updateLivePreview() {
+            try {
+                const price = parseFloat(document.getElementById('vehiclePrice').value) || 0;
+                const model = document.getElementById('vehicleModel').value;
+                const annualKm = parseInt(document.getElementById('annualKm').value) || 15000;
+                const years = parseInt(document.querySelector('input[name="analysisPeriod"]:checked')?.value) || 5;
+                
+                if (price > 0 && model && vehicleSpecs[model]) {
+                    const quickInputs = {
+                        price, model, annualKm, years,
+                        acPercentage: parseInt(document.getElementById('acCharge').value),
+                        dcPercentage: parseInt(document.getElementById('dcCharge').value)
+                    };
+                    
+                    const quickCalc = calculateTSO(quickInputs);
+                    
+                    animateCounter(livePreviewValue, Math.round(quickCalc.totalTSO));
+                    livePreviewPerKm.textContent = '$' + quickCalc.costPerKm.toFixed(3);
+                    
+                    livePreview.classList.add('subtle-glow');
+                    setTimeout(() => livePreview.classList.remove('subtle-glow'), 500);
+                }
+            } catch (e) {
+                console.log('Live preview error:', e);
+            }
+        }
+
+        function animateCounter(element, targetValue) {
+            const currentValue = parseInt(element.textContent.replace(/[^0-9]/g, '')) || 0;
+            const duration = 600;
+            const increment = (targetValue - currentValue) / (duration / 16);
+            let current = currentValue;
+            
+            const animate = () => {
+                current += increment;
+                if ((increment > 0 && current >= targetValue) || (increment < 0 && current <= targetValue)) {
+                    element.textContent = '$' + Math.round(targetValue).toLocaleString();
+                    return;
+                }
+                element.textContent = '$' + Math.round(current).toLocaleString();
+                requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+
+        // --- PROGRESS INDICATORS ---
+        function showCalculationProgress() {
+            const progress = document.getElementById('calculationProgress');
+            progress.classList.remove('hidden');
+            
+            const steps = [
+                { id: 'step1', text: 'Validando datos...', duration: 200 },
+                { id: 'step2', text: 'Calculando energía...', duration: 300 },
+                { id: 'step3', text: 'Procesando costos...', duration: 400 },
+                { id: 'step4', text: 'Generando reporte...', duration: 300 }
+            ];
+            
+            let currentStep = 0;
+            
+            const processStep = () => {
+                if (currentStep > 0) {
+                    // Mark previous step as complete
+                    const prevStep = document.getElementById(`step${currentStep}`);
+                    if (prevStep) {
+                        prevStep.classList.remove('active');
+                        prevStep.classList.add('complete');
+                        prevStep.innerHTML = '✓';
+                    }
+                }
+                
+                currentStep++;
+                
+                if (currentStep <= steps.length) {
+                    // Create new step if needed
+                    if (currentStep > 1) {
+                        const stepEl = document.createElement('div');
+                        stepEl.className = 'calc-progress';
+                        stepEl.innerHTML = `
+                            <div id="step${currentStep}" class="step-indicator active">${currentStep}</div>
+                            <span class="text-sm">${steps[currentStep - 1].text}</span>
+                        `;
+                        progress.appendChild(stepEl);
+                    } else {
+                        progress.querySelector('.calc-progress span').textContent = steps[0].text;
+                    }
+                    
+                    setTimeout(() => {
+                        if (currentStep < steps.length) {
+                            processStep();
+                        } else {
+                            // Complete final step
+                            const finalStep = document.getElementById(`step${currentStep}`);
+                            if (finalStep) {
+                                finalStep.classList.remove('active');
+                                finalStep.classList.add('complete');
+                                finalStep.innerHTML = '✓';
+                            }
+                            setTimeout(() => progress.classList.add('hidden'), 1000);
+                        }
+                    }, steps[currentStep - 1].duration);
+                }
+            };
+            
+            processStep();
+        }
+
+        function updateSliderValues() {
+            annualKmValue.textContent = parseInt(annualKmSlider.value).toLocaleString();
+            acChargeValue.textContent = acChargeSlider.value;
+            dcChargeValue.textContent = dcChargeSlider.value;
+        }
+
+        // --- DARK MODE ---
+        function initializeDarkMode() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('darkMode');
+
+            if (savedTheme === 'true' || (savedTheme === null && prefersDark)) {
+                document.body.classList.add('dark-mode');
+            }
+
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+            });
+        }
+
+        // --- CALCULATION FORMULAS ---
+        function calculateInflationAdjustedInsurance(baseAnnual, years, evDiscount, inflationRate) {
+            let totalCost = 0;
+            for (let year = 1; year <= years; year++) {
+                const yearlyInflation = Math.pow(1 + inflationRate, year - 1);
+                totalCost += baseAnnual * (1 - evDiscount) * yearlyInflation;
+            }
+            return totalCost;
+        }
+
+        function calculateRealMarchamo(priceUSD, exchangeRate, evDiscountRate = 0.25) {
+            const valorFiscalCRC = priceUSD * exchangeRate;
+            let baseRate = 0;
+            for (const bracket of marchamoTaxBrackets) {
+                if (valorFiscalCRC >= bracket.min && valorFiscalCRC <= bracket.max) {
+                    baseRate = bracket.rate;
+                    break;
+                }
+            }
+            const marchamoBaseCRC = valorFiscalCRC * baseRate;
+            const evDiscountCRC = marchamoBaseCRC * evDiscountRate;
+            const marchamoFinalCRC = marchamoBaseCRC - evDiscountCRC;
+            return marchamoFinalCRC / exchangeRate;
+        }
+        
+        function calculateTotalMarchamo(initialPrice, years, depreciationCurve, exchangeRate) {
+            let totalMarchamo = 0;
+            for (let year = 1; year <= years; year++) {
+                const prevYearDepreciation = year === 1 ? 0 : (depreciationCurve[year - 1] || 0);
+                const currentPrice = initialPrice * (1 - prevYearDepreciation);
+                totalMarchamo += calculateRealMarchamo(currentPrice, exchangeRate);
+            }
+            return totalMarchamo;
+        }
+
+        function calculateEVMaintenance(totalKm) {
+            if (totalKm <= 100000) return 0;
+            const excessKm = totalKm - 100000;
+            const regularServices = Math.floor(excessKm / 20000);
+            const majorServices = Math.floor(excessKm / 60000);
+            return (regularServices * 240) + (majorServices * 110);
+        }
+
+        function calculateEnergyCosts(vehicleModel, totalKm, acPercentage, dcPercentage, rates) {
+            const vehicleData = vehicleSpecs[vehicleModel];
+            const totalKwh = (totalKm / 100) * vehicleData.consumption_kwh_100km;
+            const kwhAC = totalKwh * (acPercentage / 100);
+            const costACUSD = kwhAC * rates.ac_residential_crc_kwh / rates.exchange_rate;
+            const kwhDC = totalKwh * (dcPercentage / 100);
+            const dcPowerKW = Math.min(vehicleData.dc_power_kw, 150);
+            const chargingTimeMinutes = (kwhDC / dcPowerKW) * 60;
+            const costDCUSD = chargingTimeMinutes * rates.dc_fast_crc_minute / rates.exchange_rate;
+            return {
+                totalKwh, kwhAC, kwhDC, costACUSD, costDCUSD,
+                chargingTimeMinutes, totalCostUSD: costACUSD + costDCUSD
+            };
+        }
+
+        // NEW: ICE Comparison Function
+        function calculateICEComparison(evInputs, evResults) {
+            const { price, annualKm, years } = evInputs;
+            const totalKm = annualKm * years;
+            
+            // ICE Fuel costs with inflation
+            const fuelEfficiency = 12; // km per liter average
+            const litersPerYear = annualKm / fuelEfficiency;
+            let totalFuelCost = 0;
+            
+            for (let year = 1; year <= years; year++) {
+                const yearlyInflation = Math.pow(1 + costaRicaRates.gasoline_inflation_rate, year - 1);
+                const yearlyFuelCost = litersPerYear * costaRicaRates.gasoline_crc_liter * yearlyInflation / costaRicaRates.exchange_rate;
+                totalFuelCost += yearlyFuelCost;
+            }
+            
+            // ICE Maintenance (higher than EV)
+            const iceMaintenance = years * 800 + Math.floor(totalKm / 40000) * 1200; // Major services every 40k km
+            
+            // ICE Insurance (no EV discount)
+            const iceInsurance = calculateInflationAdjustedInsurance(
+                costaRicaRates.insurance_base_usd, years, 0, costaRicaRates.insurance_inflation_rate
+            );
+            
+            // ICE Marchamo (no EV discount)
+            const iceMarchamo = calculateTotalMarchamo(price, years, depreciationCurves.ice, costaRicaRates.exchange_rate) / 0.75; // Remove EV discount
+            
+            // ICE Depreciation (higher)
+            const iceDepreciationRate = depreciationCurves.ice[years];
+            const iceDepreciationCost = price * iceDepreciationRate;
+            const iceResidualValue = price - iceDepreciationCost;
+            
+            const iceTotalTSO = price + totalFuelCost + iceMaintenance + iceInsurance + iceMarchamo - iceResidualValue;
+            
+            return {
+                fuelCost: totalFuelCost,
+                maintenanceCost: iceMaintenance,
+                insuranceCost: iceInsurance,
+                marchamoCost: iceMarchamo,
+                totalTSO: iceTotalTSO,
+                costPerKm: iceTotalTSO / totalKm,
+                savings: iceTotalTSO - evResults.totalTSO,
+                breakeven: Math.abs((price - evInputs.price) / ((iceTotalTSO - evResults.totalTSO) / totalKm)) || 0
+            };
+        }
+
+        // --- CORE TSO LOGIC (MODIFIED TO SUBTRACT RESIDUAL VALUE CORRECTLY) ---
+        function calculateTSO(inputs, modifier = {}) {
+            const modifiedInputs = { ...inputs, ...modifier.inputs };
+            const modifiedRates = { ...costaRicaRates, ...modifier.rates };
+
+            const { price, model, annualKm, years, acPercentage, dcPercentage } = modifiedInputs;
+            const totalKm = annualKm * years;
+            
+            const purchasePrice = price;
+            const depreciationCurve = depreciationCurves[modifier.depreciationCurve || 'ev'];
+            const depreciationRate = depreciationCurve[years] || depreciationCurve[Object.keys(depreciationCurve).pop()];
+            const depreciationCost = purchasePrice * depreciationRate;
+            const residualValue = purchasePrice * (1 - depreciationRate); // CORRECTED: residualValue = price * (1 - depreciation)
+            
+            const energyResult = calculateEnergyCosts(model, totalKm, acPercentage, dcPercentage, modifiedRates);
+            const energyCost = energyResult.totalCostUSD;
+
+            const insuranceCost = calculateInflationAdjustedInsurance(
+                modifiedRates.insurance_base_usd, years, modifiedRates.insurance_ev_discount, modifiedRates.insurance_inflation_rate
+            );
+            
+            const maintenanceCost = calculateEVMaintenance(totalKm);
+            const marchamoCost = calculateTotalMarchamo(price, years, depreciationCurve, modifiedRates.exchange_rate);
+            
+            // CORRECTED TSO FORMULA: Total costs minus residual value
+            const totalTSO = purchasePrice + energyCost + insuranceCost + maintenanceCost + marchamoCost - residualValue;
+            
+            return {
+                inputs: modifiedInputs,
+                purchasePrice,
+                depreciationCost,
+                residualValue,
+                energyCost,
+                energyResult,
+                insuranceCost,
+                maintenanceCost,
+                marchamoCost,
+                totalTSO,
+                costPerKm: totalKm > 0 ? totalTSO / totalKm : 0,
+                years: years,
+                resaleRate: 1 - depreciationRate
+            };
+        }
+        
+        // --- VALIDATION & ERROR HANDLING ---
+        function validateInputs(price, model, annualKm, years) {
+            const errors = [];
+            if (!price || price < 5000 || price > 150000) errors.push("Precio debe estar entre $5,000 y $150,000.");
+            if (!vehicleSpecs[model]) errors.push("Modelo de vehículo no válido.");
+            if (!annualKm || annualKm < 5000 || annualKm > 40000) errors.push("Kilometraje anual debe estar entre 5,000 y 40,000 km.");
+            if (![5, 10].includes(parseInt(years))) errors.push("Período debe ser 5 o 10 años.");
+            return errors;
+        }
+
+        function calculateTSOSafely() {
+            calculateButton.disabled = true;
+            showCalculationProgress();
+            
+            try {
+                const formData = new FormData(form);
+                const inputs = {
+                    price: parseFloat(formData.get('vehiclePrice')),
+                    model: formData.get('vehicleModel'),
+                    annualKm: parseInt(formData.get('annualKm')),
+                    years: parseInt(formData.get('analysisPeriod')),
+                    acPercentage: parseInt(formData.get('acCharge')),
+                    dcPercentage: parseInt(formData.get('dcCharge')),
+                };
+
+                const validationErrors = validateInputs(inputs.price, inputs.model, inputs.annualKm, inputs.years);
+                if (validationErrors.length > 0) {
+                    throw new Error(validationErrors.join(' '));
+                }
+                
+                // Calculate EV results
+                const evResults = calculateTSO(inputs);
+                
+                if (!evResults || typeof evResults.totalTSO !== 'number' || isNaN(evResults.totalTSO)) {
+                    throw new Error('No se pudieron generar resultados válidos con los datos proporcionados.');
+                }
+                
+                // Calculate ICE comparison
+                const iceResults = calculateICEComparison(inputs, evResults);
+                
+                lastResults = { ...evResults, iceComparison: iceResults };
+                
+                displayEnhancedResults(lastResults);
+                resultsSection.classList.remove('hidden');
+                
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                showSuccessMessage('Cálculo completado exitosamente.');
+                
+                // Save successful calculation
+                saveUserPreferences();
+                
+            } catch (error) {
+                console.error('Error en cálculo TSO:', error);
+                showErrorMessage(`Error: ${error.message}`);
+            } finally {
+                calculateButton.disabled = false;
+                setTimeout(() => {
+                    document.getElementById('calculationProgress').classList.add('hidden');
+                }, 2000);
+            }
+        }
+
+        // --- ENHANCED DISPLAY FUNCTIONS ---
+        function displayEnhancedResults(results) {
+            const totalKm = results.inputs.annualKm * results.years;
+            const totalExpenses = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
+            const costOfUse = results.totalTSO;
+            const ice = results.iceComparison;
+
+            // Calculate environmental impact
+            const co2Avoided = (totalKm * 0.00021); // tons of CO2
+            const monthlyEnergyCost = results.energyCost / results.years / 12;
+
+            const summaryContainer = document.getElementById('simplifiedSummary');
+            summaryContainer.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6 border-b-2 border-cr-blue pb-2">TSO Electric Vehicles Experience</h2>
+                <div class="space-y-4 text-base md:text-lg dark:text-gray-300">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <strong class="font-semibold text-gray-600 dark:text-gray-400">Modelo:</strong> 
+                        <span class="font-medium text-right">${results.inputs.model}</span>
+                        <strong class="font-semibold text-gray-600 dark:text-gray-400">Valor del Vehículo:</strong> 
+                        <span class="font-medium text-right">$${results.inputs.price.toLocaleString()}</span>
+                        <strong class="font-semibold text-gray-600 dark:text-gray-400">Plazo:</strong> 
+                        <span class="font-medium text-right">${results.years} años</span>
+                        <strong class="font-semibold text-gray-600 dark:text-gray-400">Kilometraje Total:</strong> 
+                        <span class="font-medium text-right">${totalKm.toLocaleString()} km</span>
+                    </div>
+                    
+                    <hr class="my-4 border-gray-200 dark:border-gray-600">
+                    
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <span class="text-gray-600 dark:text-gray-400">Depreciación de Mercado (${(100 - results.resaleRate * 100).toFixed(0)}%):</span> 
+                        <span class="text-right">$${Math.round(results.depreciationCost).toLocaleString()}</span>
+                        <span class="text-gray-600 dark:text-gray-400">Costo de Mantenimiento:</span> 
+                        <span class="text-right ${totalKm <= 100000 ? 'text-green-600 font-bold' : ''}">
+                            ${totalKm <= 100000 ? 'GRATIS' : '$' + Math.round(results.maintenanceCost).toLocaleString()}
+                        </span>
+                        <span class="text-gray-600 dark:text-gray-400">Costo de Seguros:</span> 
+                        <span class="text-right">$${Math.round(results.insuranceCost).toLocaleString()}</span>
+                        <span class="text-gray-600 dark:text-gray-400">Costo de Marchamo:</span> 
+                        <span class="text-right">$${Math.round(results.marchamoCost).toLocaleString()}</span>
+                        <span class="text-gray-600 dark:text-gray-400">Costo Energético:</span> 
+                        <span class="text-right">$${Math.round(results.energyCost).toLocaleString()}</span>
+                    </div>
+                    
+                    <hr class="my-4 border-gray-200 dark:border-gray-600">
+                    
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                         <strong class="font-semibold">Total de Gastos:</strong> 
+                         <strong class="font-semibold text-right">$${Math.round(totalExpenses).toLocaleString()}</strong>
+                         <span class="text-green-600 dark:text-green-400">Valor de Venta (Reventa, ${(results.resaleRate * 100).toFixed(0)}%):</span> 
+                         <span class="text-green-600 dark:text-green-400 text-right">-$${Math.round(results.residualValue).toLocaleString()}</span>
+                    </div>
+                    
+                    <hr class="my-4 border-gray-200 dark:border-gray-600">
+                    
+                    <div class="bg-blue-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
+                        <div class="flex justify-between items-center">
+                            <strong class="font-bold text-xl text-cr-blue dark:text-cr-gold">Costo de Uso de la Unidad (TSO):</strong> 
+                            <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${Math.round(costOfUse).toLocaleString()}</span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <strong class="font-bold text-xl text-cr-blue dark:text-cr-gold">Costo por Kilómetro:</strong> 
+                            <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${results.costPerKm.toFixed(3)}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Enhanced Information Section -->
+                    <div class="mt-6 space-y-4">
+                        <!-- ICE Comparison -->
+                        <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
+                            <h3 class="font-bold text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+                                ⛽ Comparación vs Vehículo Gasolina
+                            </h3>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <span class="text-yellow-700 dark:text-yellow-300">TSO Gasolina:</span>
+                                <span class="font-bold text-right">$${Math.round(ice.totalTSO).toLocaleString()}</span>
+                                <span class="text-yellow-700 dark:text-yellow-300">Costo/km Gasolina:</span>
+                                <span class="font-bold text-right">$${ice.costPerKm.toFixed(3)}</span>
+                                <span class="text-green-700 dark:text-green-300 font-bold">Ahorro Total EV:</span>
+                                <span class="font-bold text-green-700 dark:text-green-300 text-right">$${Math.round(ice.savings).toLocaleString()}</span>
+                                <span class="text-blue-700 dark:text-blue-300">Punto Equilibrio:</span>
+                                <span class="font-semibold text-right">${Math.round(ice.breakeven).toLocaleString()} km</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Metrics -->
+                        <div class="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+                            <h3 class="font-bold text-green-800 dark:text-green-200 mb-3 flex items-center">
+                                💡 Información Adicional
+                            </h3>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <span class="text-green-700 dark:text-green-300">Ahorro en Combustible:</span>
+                                <span class="font-bold text-right">$${Math.round(ice.fuelCost - results.energyCost).toLocaleString()}</span>
+                                <span class="text-green-700 dark:text-green-300">CO₂ Evitado:</span>
+                                <span class="font-bold text-right">${co2Avoided.toFixed(1)} toneladas</span>
+                                <span class="text-green-700 dark:text-green-300">Costo Energía/mes:</span>
+                                <span class="font-bold text-right">$${Math.round(monthlyEnergyCost)}</span>
+                                <span class="text-green-700 dark:text-green-300">Eficiencia:</span>
+                                <span class="font-bold text-right">${vehicleSpecs[results.inputs.model].consumption_kwh_100km} kWh/100km</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Recommendations -->
+                        ${generateRecommendations(results)}
+                        
+                        <!-- Energy Breakdown -->
+                        <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
+                            <h3 class="font-bold text-blue-800 dark:text-blue-200 mb-3">⚡ Desglose Energético</h3>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <span class="text-blue-700 dark:text-blue-300">Consumo Total:</span>
+                                <span class="text-right">${Math.round(results.energyResult.totalKwh).toLocaleString()} kWh</span>
+                                <span class="text-blue-700 dark:text-blue-300">Carga AC (${results.inputs.acPercentage}%):</span>
+                                <span class="text-right">${Math.round(results.energyResult.kwhAC)} kWh - $${Math.round(results.energyResult.costACUSD)}</span>
+                                <span class="text-blue-700 dark:text-blue-300">Carga DC (${results.inputs.dcPercentage}%):</span>
+                                <span class="text-right">${Math.round(results.energyResult.kwhDC)} kWh - $${Math.round(results.energyResult.costDCUSD)}</span>
+                                <span class="text-blue-700 dark:text-blue-300">Tiempo Carga DC:</span>
+                                <span class="text-right">${Math.round(results.energyResult.chargingTimeMinutes)} minutos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateRecommendations(results) {
+            const recommendations = [];
+            const inputs = results.inputs;
+            const ice = results.iceComparison;
+            
+            if (inputs.annualKm < 10000) {
+                recommendations.push("🚗 Bajo kilometraje: considere leasing como alternativa más económica");
+            }
+            
+            if (inputs.acPercentage < 60) {
+                recommendations.push("⚡ Aumente carga AC para reducir costos energéticos");
+            }
+            
+            if (ice.savings > 15000) {
+                recommendations.push("💰 Excelente ahorro vs gasolina - decisión muy acertada");
+            }
+            
+            if (results.totalTSO / results.inputs.price < 1.3) {
+                recommendations.push("📈 TSO muy eficiente - vehículo retiene bien su valor");
+            }
+            
+            const totalKm = inputs.annualKm * inputs.years;
+            if (totalKm <= 100000) {
+                recommendations.push("🔧 Mantenimiento GRATIS todo el período - ahorro significativo");
+            }
+            
+            if (recommendations.length === 0) {
+                recommendations.push("✅ Configuración balanceada - buen análisis de TSO");
+            }
+            
+            if (recommendations.length > 0) {
+                return `
+                    <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
+                        <h3 class="font-bold text-purple-800 dark:text-purple-200 mb-3">🤖 Recomendaciones Inteligentes</h3>
+                        <ul class="space-y-1 text-sm">
+                            ${recommendations.map(rec => `<li class="text-purple-700 dark:text-purple-300">• ${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            return '';
+        }
+        
+        // --- UI UTILITIES ---
+        function showErrorMessage(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
+        }
+        
+        function showSuccessMessage(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // --- ENHANCED PDF EXPORT WITH NEW BRANDING ---
+        function exportToPDF(results) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let y = 15;
+            const totalKm = results.inputs.annualKm * results.years;
+            const totalExpenses = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
+            const ice = results.iceComparison;
+
+            function cleanText(text) {
+                return String(text)
+                    .replace(/[áàäâ]/g, 'a').replace(/[éèëê]/g, 'e').replace(/[íìïî]/g, 'i')
+                    .replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n')
+                    .replace(/[ÁÀÄÂ]/g, 'A').replace(/[ÉÈËÊ]/g, 'E').replace(/[ÍÌÏÎ]/g, 'I')
+                    .replace(/[ÓÒÖÔ]/g, 'O').replace(/[ÚÙÜÛ]/g, 'U').replace(/Ñ/g, 'N')
+                    .replace(/¢/g, 'CRC').replace(/[^\x00-\x7F]/g, '');
+            }
+
+            function addSectionTitle(title) {
+                if (y > 260) { doc.addPage(); y = 15; }
+                doc.setFontSize(16);
+                doc.setTextColor('#003366');
+                doc.text(cleanText(title), 14, y);
+                y += 8;
+                doc.setDrawColor(200);
+                doc.line(14, y - 2, 196, y - 2);
+                y += 5;
+            }
+
+            function addLineItem(label, value, isTotal = false) {
+                if (y > 280) { doc.addPage(); y = 15; }
+                doc.setFontSize(isTotal ? 11 : 10);
+                doc.setFont('helvetica', isTotal ? 'bold' : 'normal');
+                doc.setTextColor(isTotal ? '#003366' : 40);
+                doc.text(cleanText(label), 14, y);
+                doc.text(cleanText(value), 196, y, { align: 'right' });
+                y += isTotal ? 8 : 6;
+            }
+
+            // Enhanced Header with new branding
+            doc.setFontSize(20);
+            doc.setTextColor('#003366');
+            doc.text(cleanText('TSO Electric Vehicles Experience'), 105, y, { align: 'center' });
+            y += 6;
+            doc.setFontSize(14);
+            doc.text(cleanText('Analisis de Costo Total de Propiedad'), 105, y, { align: 'center' });
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(cleanText(`Generado: ${new Date().toLocaleDateString('es-CR')} | Costa Rica 2025`), 105, y, { align: 'center' });
+            y += 12;
+
+            // Vehicle Info
+            addSectionTitle('Parametros del Analisis');
+            addLineItem('Modelo:', `${results.inputs.model}`);
+            addLineItem('Categoria:', `${vehicleSpecs[results.inputs.model].category}`);
+            addLineItem('Valor del Vehiculo:', `$${results.inputs.price.toLocaleString()}`);
+            addLineItem('Plazo:', `${results.years} anos`);
+            addLineItem('Kilometraje Total:', `${totalKm.toLocaleString()} km`);
+            addLineItem('Distribucion Carga:', `${results.inputs.acPercentage}% AC / ${results.inputs.dcPercentage}% DC`);
+            y += 5;
+
+            // EV Analysis
+            addSectionTitle('Analisis Vehiculo Electrico');
+            addLineItem(`Depreciacion (${(100 - results.resaleRate * 100).toFixed(0)}%):`, `$${Math.round(results.depreciationCost).toLocaleString()}`);
+            
+            if (totalKm <= 100000) {
+                addLineItem('Mantenimiento:', 'GRATIS hasta 100,000 km');
+            } else {
+                addLineItem('Mantenimiento:', `$${Math.round(results.maintenanceCost).toLocaleString()}`);
+            }
+            
+            addLineItem('Seguros (con descuento EV):', `$${Math.round(results.insuranceCost).toLocaleString()}`);
+            addLineItem('Marchamo (con descuento EV):', `$${Math.round(results.marchamoCost).toLocaleString()}`);
+            addLineItem('Costo Energetico:', `$${Math.round(results.energyCost).toLocaleString()}`);
+            y += 2;
+            addLineItem('Total de Gastos:', `$${Math.round(totalExpenses).toLocaleString()}`, true);
+            addLineItem(`Valor Residual (${(results.resaleRate * 100).toFixed(0)}%):`, `-$${Math.round(results.residualValue).toLocaleString()}`);
+            addLineItem('TSO VEHICULO ELECTRICO:', `$${Math.round(results.totalTSO).toLocaleString()}`, true);
+            addLineItem('Costo por Kilometro:', `$${results.costPerKm.toFixed(3)}`, true);
+            y += 5;
+
+            // ICE Comparison
+            addSectionTitle('Comparacion con Vehiculo Gasolina');
+            addLineItem('TSO Vehiculo Gasolina:', `$${Math.round(ice.totalTSO).toLocaleString()}`);
+            addLineItem('Costo/km Gasolina:', `$${ice.costPerKm.toFixed(3)}`);
+            addLineItem('Combustible (con inflacion):', `$${Math.round(ice.fuelCost).toLocaleString()}`);
+            addLineItem('Mantenimiento ICE:', `$${Math.round(ice.maintenanceCost).toLocaleString()}`);
+            y += 3;
+            addLineItem('AHORRO TOTAL CON EV:', `$${Math.round(ice.savings).toLocaleString()}`, true);
+            addLineItem('Punto de Equilibrio:', `${Math.round(ice.breakeven).toLocaleString()} km`);
+            y += 5;
+
+            // Environmental Impact
+            addSectionTitle('Impacto Ambiental y Adicional');
+            const co2Avoided = totalKm * 0.00021;
+            addLineItem('CO2 Evitado:', `${co2Avoided.toFixed(1)} toneladas`);
+            addLineItem('Costo Energia Mensual:', `$${Math.round(results.energyCost / results.years / 12)}`);
+            addLineItem('Eficiencia del Modelo:', `${vehicleSpecs[results.inputs.model].consumption_kwh_100km} kWh/100km`);
+            addLineItem('Tiempo Carga DC Total:', `${Math.round(results.energyResult.chargingTimeMinutes)} minutos`);
+
+            // Footer
+            y = 280;
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(cleanText('TSO Electric Vehicles Experience | Costa Rica 2025'), 105, y, { align: 'center' });
+            y += 4;
+            doc.text(cleanText('Reporte completo con comparacion vs vehiculos gasolina y analisis ambiental.'), 105, y, { align: 'center' });
+
+            doc.save(`TSO_ElectricVehiclesExperience_${results.inputs.model.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
+            showSuccessMessage('Reporte TSO Electric Vehicles Experience generado exitosamente.');
+        }
+
+        // --- START THE APP ---
+        initializeApp();
+        
+        // Initialize slider values on load
+        updateSliderValues();
+    });
+    </script>
+</body>
+</html>
