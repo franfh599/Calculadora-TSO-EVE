@@ -416,7 +416,7 @@
                         <select id="vehicleModel" name="vehicleModel" class="w-full p-2 border rounded-md dark:border-gray-600" required>
                             <!-- Options will be populated by JS -->
                         </select>
-                        <div id="modelInfo" class="mt-1 text-xs text-gray-600 dark:text-gray-400"></div>
+                        <!-- ELIMINADO: modelInfo div ya no se muestra -->
                     </div>
                     
                     <div>
@@ -669,9 +669,8 @@
                 saveUserPreferences();
             });
 
-            // Model selection
+            // Model selection - ELIMINADO updateModelInfo()
             vehicleModelSelect.addEventListener('change', (e) => {
-                updateModelInfo(e.target.value);
                 updateLivePreviewDebounced();
                 saveUserPreferences();
             });
@@ -740,7 +739,7 @@
             }
         };
 
-        // --- VALIDATION FUNCTIONS (SIMPLIFIED - REMOVED PRICE RANGE CHECK) ---
+        // --- VALIDATION FUNCTIONS ---
         function validatePrice(input) {
             const price = parseFloat(input.value);
             const validationDiv = document.getElementById('priceValidation');
@@ -759,27 +758,7 @@
             }
         }
 
-        function updateModelInfo(model) {
-            const infoDiv = document.getElementById('modelInfo');
-            if (model && vehicleSpecs[model]) {
-                const spec = vehicleSpecs[model];
-                const categoryNames = {
-                    sedan: 'Sedán',
-                    compact: 'Compacto', 
-                    suv: 'SUV',
-                    truck: 'Pickup',
-                    pickup: 'Pickup'
-                };
-                infoDiv.innerHTML = `
-                    <span class="text-blue-600 dark:text-blue-400">
-                        ${categoryNames[spec.category]} • ${spec.consumption_kwh_100km} kWh/100km • 
-                        Batería: ${spec.battery_kwh} kWh • DC: ${spec.dc_power_kw}kW
-                    </span>
-                `;
-            } else {
-                infoDiv.innerHTML = '';
-            }
-        }
+        // ELIMINADA: updateModelInfo function
 
         function updateKmRecommendation(km) {
             const recDiv = document.getElementById('kmRecommendation');
@@ -1025,8 +1004,9 @@
             // ICE Depreciation (higher)
             const iceDepreciationRate = depreciationCurves.ice[years];
             const iceDepreciationCost = price * iceDepreciationRate;
-            const iceResidualValue = price - iceDepreciationCost;
+            const iceResidualValue = price * (1 - iceDepreciationRate);
             
+            // CORRECTED ICE TSO CALCULATION
             const iceTotalTSO = price + totalFuelCost + iceMaintenance + iceInsurance + iceMarchamo - iceResidualValue;
             
             return {
@@ -1034,6 +1014,8 @@
                 maintenanceCost: iceMaintenance,
                 insuranceCost: iceInsurance,
                 marchamoCost: iceMarchamo,
+                depreciationCost: iceDepreciationCost,
+                residualValue: iceResidualValue,
                 totalTSO: iceTotalTSO,
                 costPerKm: iceTotalTSO / totalKm,
                 savings: iceTotalTSO - evResults.totalTSO,
@@ -1041,7 +1023,7 @@
             };
         }
 
-        // --- CORE TSO LOGIC (MODIFIED TO SUBTRACT RESIDUAL VALUE CORRECTLY) ---
+        // --- CORE TSO LOGIC (CORRECTED FORMULA) ---
         function calculateTSO(inputs, modifier = {}) {
             const modifiedInputs = { ...inputs, ...modifier.inputs };
             const modifiedRates = { ...costaRicaRates, ...modifier.rates };
@@ -1053,7 +1035,7 @@
             const depreciationCurve = depreciationCurves[modifier.depreciationCurve || 'ev'];
             const depreciationRate = depreciationCurve[years] || depreciationCurve[Object.keys(depreciationCurve).pop()];
             const depreciationCost = purchasePrice * depreciationRate;
-            const residualValue = purchasePrice * (1 - depreciationRate); // CORRECTED: residualValue = price * (1 - depreciation)
+            const residualValue = purchasePrice * (1 - depreciationRate);
             
             const energyResult = calculateEnergyCosts(model, totalKm, acPercentage, dcPercentage, modifiedRates);
             const energyCost = energyResult.totalCostUSD;
@@ -1065,8 +1047,8 @@
             const maintenanceCost = calculateEVMaintenance(totalKm);
             const marchamoCost = calculateTotalMarchamo(price, years, depreciationCurve, modifiedRates.exchange_rate);
             
-            // CORRECTED TSO FORMULA: Total costs minus residual value
-            const totalTSO = purchasePrice + energyCost + insuranceCost + maintenanceCost + marchamoCost - residualValue;
+            // CORRECTED TSO FORMULA: Total de Gastos - Valor de Venta
+            const totalTSO = depreciationCost + energyCost + insuranceCost + maintenanceCost + marchamoCost - residualValue;
             
             return {
                 inputs: modifiedInputs,
@@ -1147,11 +1129,15 @@
             }
         }
 
-        // --- ENHANCED DISPLAY FUNCTIONS ---
+        // --- ENHANCED DISPLAY FUNCTIONS (CORRECTED) ---
         function displayEnhancedResults(results) {
             const totalKm = results.inputs.annualKm * results.years;
-            const totalExpenses = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
-            const costOfUse = results.totalTSO;
+            
+            // CORRECTED: Total de Gastos = suma de todos los costos SIN restar valor de venta
+            const totalGastos = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
+            
+            // CORRECTED: TSO = Total de Gastos - Valor de Venta
+            const costoDeUso = totalGastos - results.residualValue;
             const ice = results.iceComparison;
 
             // Calculate environmental impact
@@ -1194,7 +1180,7 @@
                     
                     <div class="grid grid-cols-2 gap-x-4 gap-y-2">
                          <strong class="font-semibold">Total de Gastos:</strong> 
-                         <strong class="font-semibold text-right">$${Math.round(totalExpenses).toLocaleString()}</strong>
+                         <strong class="font-semibold text-right">$${Math.round(totalGastos).toLocaleString()}</strong>
                          <span class="text-green-600 dark:text-green-400">Valor de Venta (Reventa, ${(results.resaleRate * 100).toFixed(0)}%):</span> 
                          <span class="text-green-600 dark:text-green-400 text-right">-$${Math.round(results.residualValue).toLocaleString()}</span>
                     </div>
@@ -1204,11 +1190,14 @@
                     <div class="bg-blue-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
                         <div class="flex justify-between items-center">
                             <strong class="font-bold text-xl text-cr-blue dark:text-cr-gold">Costo de Uso de la Unidad (TSO):</strong> 
-                            <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${Math.round(costOfUse).toLocaleString()}</span>
+                            <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${Math.round(costoDeUso).toLocaleString()}</span>
+                        </div>
+                        <div class="text-center text-sm text-cr-blue dark:text-cr-gold mt-2">
+                            <em>Total de Gastos - Valor de Venta = $${Math.round(totalGastos).toLocaleString()} - $${Math.round(results.residualValue).toLocaleString()} = $${Math.round(costoDeUso).toLocaleString()}</em>
                         </div>
                          <div class="flex justify-between items-center">
                             <strong class="font-bold text-xl text-cr-blue dark:text-cr-gold">Costo por Kilómetro:</strong> 
-                            <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${results.costPerKm.toFixed(3)}</span>
+                            <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${(costoDeUso/totalKm).toFixed(3)}</span>
                         </div>
                     </div>
                     
@@ -1328,13 +1317,14 @@
             setTimeout(() => el.classList.remove('show'), 3000);
         }
 
-        // --- ENHANCED PDF EXPORT WITH NEW BRANDING ---
+        // --- ENHANCED PDF EXPORT WITH CORRECTED CALCULATIONS ---
         function exportToPDF(results) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             let y = 15;
             const totalKm = results.inputs.annualKm * results.years;
-            const totalExpenses = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
+            const totalGastos = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
+            const costoDeUso = totalGastos - results.residualValue;
             const ice = results.iceComparison;
 
             function cleanText(text) {
@@ -1389,7 +1379,7 @@
             addLineItem('Distribucion Carga:', `${results.inputs.acPercentage}% AC / ${results.inputs.dcPercentage}% DC`);
             y += 5;
 
-            // EV Analysis
+            // EV Analysis - CORRECTED
             addSectionTitle('Analisis Vehiculo Electrico');
             addLineItem(`Depreciacion (${(100 - results.resaleRate * 100).toFixed(0)}%):`, `$${Math.round(results.depreciationCost).toLocaleString()}`);
             
@@ -1403,10 +1393,10 @@
             addLineItem('Marchamo (con descuento EV):', `$${Math.round(results.marchamoCost).toLocaleString()}`);
             addLineItem('Costo Energetico:', `$${Math.round(results.energyCost).toLocaleString()}`);
             y += 2;
-            addLineItem('Total de Gastos:', `$${Math.round(totalExpenses).toLocaleString()}`, true);
+            addLineItem('Total de Gastos:', `$${Math.round(totalGastos).toLocaleString()}`, true);
             addLineItem(`Valor Residual (${(results.resaleRate * 100).toFixed(0)}%):`, `-$${Math.round(results.residualValue).toLocaleString()}`);
-            addLineItem('TSO VEHICULO ELECTRICO:', `$${Math.round(results.totalTSO).toLocaleString()}`, true);
-            addLineItem('Costo por Kilometro:', `$${results.costPerKm.toFixed(3)}`, true);
+            addLineItem('TSO VEHICULO ELECTRICO:', `$${Math.round(costoDeUso).toLocaleString()}`, true);
+            addLineItem('Costo por Kilometro:', `$${(costoDeUso/totalKm).toFixed(3)}`, true);
             y += 5;
 
             // ICE Comparison
@@ -1434,7 +1424,7 @@
             doc.setTextColor(150);
             doc.text(cleanText('TSO Electric Vehicles Experience | Costa Rica 2025'), 105, y, { align: 'center' });
             y += 4;
-            doc.text(cleanText('Reporte completo con comparacion vs vehiculos gasolina y analisis ambiental.'), 105, y, { align: 'center' });
+            doc.text(cleanText('Formula: Total de Gastos - Valor de Venta = TSO'), 105, y, { align: 'center' });
 
             doc.save(`TSO_ElectricVehiclesExperience_${results.inputs.model.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
             showSuccessMessage('Reporte TSO Electric Vehicles Experience generado exitosamente.');
