@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora TSO Electric Vehicles Experience - Costa Rica</title>
+    <title>Calculadora TCO Electric Vehicles Experience - Costa Rica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -334,7 +334,7 @@
         <!-- Header -->
         <header class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl md:text-4xl font-bold cr-gradient-text">TSO Electric Vehicles Experience</h1>
+                <h1 class="text-3xl md:text-4xl font-bold cr-gradient-text">TCO Electric Vehicles Experience</h1>
                 <p class="text-gray-500 dark:text-gray-400">Análisis de Costo Total de Propiedad en Costa Rica</p>
                 <div class="mt-1">
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
@@ -359,7 +359,7 @@
                 <div id="livePreview" class="live-preview p-3 rounded-lg mb-6 hidden">
                     <div class="text-sm">
                         <div class="flex justify-between items-center">
-                            <span class="text-blue-700 dark:text-blue-200">TSO Estimado:</span>
+                            <span class="text-blue-700 dark:text-blue-200">TCO Estimado:</span>
                             <span id="livePreviewValue" class="font-bold text-lg text-blue-800 dark:text-blue-100 animated-counter">$0</span>
                         </div>
                         <div class="flex justify-between items-center mt-1">
@@ -377,7 +377,7 @@
                     </div>
                 </div>
                 
-                <form id="tsoForm" class="space-y-6">
+                <form id="tcoForm" class="space-y-6">
                     <div>
                         <label for="vehiclePrice" class="block font-semibold mb-1">
                             Precio del Vehículo (USD)
@@ -429,7 +429,7 @@
                                     • Urbano: 8,000-15,000 km<br>
                                     • Mixto: 15,000-25,000 km<br>
                                     • Intensivo: 25,000+ km<br><br>
-                                    <strong>Impacto en TSO:</strong><br>
+                                    <strong>Impacto en TCO:</strong><br>
                                     Mayor kilometraje = menor costo/km
                                 </span>
                             </span>
@@ -459,7 +459,7 @@
                                     • Menor depreciación<br><br>
                                     <strong>10 años:</strong><br>
                                     • Análisis extendido<br>
-                                    • Mayor precisión TSO<br>
+                                    • Mayor precisión TCO<br>
                                     • Incluye post-garantía
                                 </span>
                             </span>
@@ -523,7 +523,7 @@
                         </div>
                     </div>
                     
-                    <button type="submit" id="calculateButton" class="w-full btn-primary font-bold py-3 rounded-lg text-lg">Calcular TSO</button>
+                    <button type="submit" id="calculateButton" class="w-full btn-primary font-bold py-3 rounded-lg text-lg">Calcular TCO</button>
                 </form>
             </section>
 
@@ -586,7 +586,7 @@
         };
 
         // --- DOM ELEMENTS ---
-        const form = document.getElementById('tsoForm');
+        const form = document.getElementById('tcoForm');
         const vehicleModelSelect = document.getElementById('vehicleModel');
         const annualKmSlider = document.getElementById('annualKm');
         const annualKmValue = document.getElementById('annualKmValue');
@@ -628,7 +628,7 @@
 
         // --- USER PREFERENCES ---
         function loadUserPreferences() {
-            const saved = localStorage.getItem('tsoCalculatorPrefs');
+            const saved = localStorage.getItem('tcoCalculatorPrefs');
             if (saved) {
                 try {
                     const prefs = JSON.parse(saved);
@@ -657,7 +657,7 @@
                 acCharge: document.getElementById('acCharge').value,
                 timestamp: Date.now()
             };
-            localStorage.setItem('tsoCalculatorPrefs', JSON.stringify(prefs));
+            localStorage.setItem('tcoCalculatorPrefs', JSON.stringify(prefs));
         }
 
         // --- EVENT LISTENERS ---
@@ -704,7 +704,7 @@
             // Form submission
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                calculateTSOSafely();
+                calculateTCOSafely();
             });
 
             // Export PDF
@@ -758,8 +758,6 @@
             }
         }
 
-        // ELIMINADA: updateModelInfo function
-
         function updateKmRecommendation(km) {
             const recDiv = document.getElementById('kmRecommendation');
             if (km < 10000) {
@@ -767,7 +765,7 @@
             } else if (km > 30000) {
                 recDiv.innerHTML = '<span class="text-blue-600">🚗 Alto kilometraje: excelente para EVs</span>';
             } else if (km >= 15000 && km <= 25000) {
-                recDiv.innerHTML = '<span class="text-green-600">✅ Kilometraje óptimo para TSO</span>';
+                recDiv.innerHTML = '<span class="text-green-600">✅ Kilometraje óptimo para TCO</span>';
             } else {
                 recDiv.innerHTML = '<span class="text-gray-500">📊 Promedio Costa Rica: 18,500 km/año</span>';
             }
@@ -801,9 +799,9 @@
                         dcPercentage: parseInt(document.getElementById('dcCharge').value)
                     };
                     
-                    const quickCalc = calculateTSO(quickInputs);
+                    const quickCalc = calculateTCO(quickInputs);
                     
-                    animateCounter(livePreviewValue, Math.round(quickCalc.totalTSO));
+                    animateCounter(livePreviewValue, Math.round(quickCalc.totalTCO));
                     livePreviewPerKm.textContent = '$' + quickCalc.costPerKm.toFixed(3);
                     
                     livePreview.classList.add('subtle-glow');
@@ -1006,8 +1004,8 @@
             const iceDepreciationCost = price * iceDepreciationRate;
             const iceResidualValue = price * (1 - iceDepreciationRate);
             
-            // CORRECTED ICE TSO CALCULATION
-            const iceTotalTSO = price + totalFuelCost + iceMaintenance + iceInsurance + iceMarchamo - iceResidualValue;
+            // CORRECTED ICE TCO CALCULATION
+            const iceTotalTCO = price + totalFuelCost + iceMaintenance + iceInsurance + iceMarchamo - iceResidualValue;
             
             return {
                 fuelCost: totalFuelCost,
@@ -1016,15 +1014,15 @@
                 marchamoCost: iceMarchamo,
                 depreciationCost: iceDepreciationCost,
                 residualValue: iceResidualValue,
-                totalTSO: iceTotalTSO,
-                costPerKm: iceTotalTSO / totalKm,
-                savings: iceTotalTSO - evResults.totalTSO,
-                breakeven: Math.abs((price - evInputs.price) / ((iceTotalTSO - evResults.totalTSO) / totalKm)) || 0
+                totalTCO: iceTotalTCO,
+                costPerKm: iceTotalTCO / totalKm,
+                savings: iceTotalTCO - evResults.totalTCO,
+                breakeven: Math.abs((price - evInputs.price) / ((iceTotalTCO - evResults.totalTCO) / totalKm)) || 0
             };
         }
 
-        // --- CORE TSO LOGIC (CORRECTED FORMULA) ---
-        function calculateTSO(inputs, modifier = {}) {
+        // --- CORE TCO LOGIC (CORRECTED FORMULA) ---
+        function calculateTCO(inputs, modifier = {}) {
             const modifiedInputs = { ...inputs, ...modifier.inputs };
             const modifiedRates = { ...costaRicaRates, ...modifier.rates };
 
@@ -1047,8 +1045,8 @@
             const maintenanceCost = calculateEVMaintenance(totalKm);
             const marchamoCost = calculateTotalMarchamo(price, years, depreciationCurve, modifiedRates.exchange_rate);
             
-            // CORRECTED TSO FORMULA: Total de Gastos - Valor de Venta
-            const totalTSO = depreciationCost + energyCost + insuranceCost + maintenanceCost + marchamoCost - residualValue;
+            // CORRECTED TCO FORMULA: Total de Gastos - Valor de Venta
+            const totalTCO = depreciationCost + energyCost + insuranceCost + maintenanceCost + marchamoCost - residualValue;
             
             return {
                 inputs: modifiedInputs,
@@ -1060,8 +1058,8 @@
                 insuranceCost,
                 maintenanceCost,
                 marchamoCost,
-                totalTSO,
-                costPerKm: totalKm > 0 ? totalTSO / totalKm : 0,
+                totalTCO,
+                costPerKm: totalKm > 0 ? totalTCO / totalKm : 0,
                 years: years,
                 resaleRate: 1 - depreciationRate
             };
@@ -1077,7 +1075,7 @@
             return errors;
         }
 
-        function calculateTSOSafely() {
+        function calculateTCOSafely() {
             calculateButton.disabled = true;
             showCalculationProgress();
             
@@ -1098,9 +1096,9 @@
                 }
                 
                 // Calculate EV results
-                const evResults = calculateTSO(inputs);
+                const evResults = calculateTCO(inputs);
                 
-                if (!evResults || typeof evResults.totalTSO !== 'number' || isNaN(evResults.totalTSO)) {
+                if (!evResults || typeof evResults.totalTCO !== 'number' || isNaN(evResults.totalTCO)) {
                     throw new Error('No se pudieron generar resultados válidos con los datos proporcionados.');
                 }
                 
@@ -1119,7 +1117,7 @@
                 saveUserPreferences();
                 
             } catch (error) {
-                console.error('Error en cálculo TSO:', error);
+                console.error('Error en cálculo TCO:', error);
                 showErrorMessage(`Error: ${error.message}`);
             } finally {
                 calculateButton.disabled = false;
@@ -1136,7 +1134,7 @@
             // CORRECTED: Total de Gastos = suma de todos los costos SIN restar valor de venta
             const totalGastos = results.depreciationCost + results.maintenanceCost + results.insuranceCost + results.marchamoCost + results.energyCost;
             
-            // CORRECTED: TSO = Total de Gastos - Valor de Venta
+            // CORRECTED: TCO = Total de Gastos - Valor de Venta
             const costoDeUso = totalGastos - results.residualValue;
             const ice = results.iceComparison;
 
@@ -1146,7 +1144,7 @@
 
             const summaryContainer = document.getElementById('simplifiedSummary');
             summaryContainer.innerHTML = `
-                <h2 class="text-2xl font-bold mb-6 border-b-2 border-cr-blue pb-2">TSO Electric Vehicles Experience</h2>
+                <h2 class="text-2xl font-bold mb-6 border-b-2 border-cr-blue pb-2">TCO Electric Vehicles Experience</h2>
                 <div class="space-y-4 text-base md:text-lg dark:text-gray-300">
                     <div class="grid grid-cols-2 gap-x-4 gap-y-2">
                         <strong class="font-semibold text-gray-600 dark:text-gray-400">Modelo:</strong> 
@@ -1189,7 +1187,7 @@
                     
                     <div class="bg-blue-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
                         <div class="flex justify-between items-center">
-                            <strong class="font-bold text-xl text-cr-blue dark:text-cr-gold">Costo de Uso de la Unidad (TSO):</strong> 
+                            <strong class="font-bold text-xl text-cr-blue dark:text-cr-gold">Costo de Uso de la Unidad (TCO):</strong> 
                             <span class="font-bold text-2xl text-cr-blue dark:text-cr-gold">$${Math.round(costoDeUso).toLocaleString()}</span>
                         </div>
                         <div class="text-center text-sm text-cr-blue dark:text-cr-gold mt-2">
@@ -1209,8 +1207,8 @@
                                 ⛽ Comparación vs Vehículo Gasolina
                             </h3>
                             <div class="grid grid-cols-2 gap-2 text-sm">
-                                <span class="text-yellow-700 dark:text-yellow-300">TSO Gasolina:</span>
-                                <span class="font-bold text-right">$${Math.round(ice.totalTSO).toLocaleString()}</span>
+                                <span class="text-yellow-700 dark:text-yellow-300">TCO Gasolina:</span>
+                                <span class="font-bold text-right">$${Math.round(ice.totalTCO).toLocaleString()}</span>
                                 <span class="text-yellow-700 dark:text-yellow-300">Costo/km Gasolina:</span>
                                 <span class="font-bold text-right">$${ice.costPerKm.toFixed(3)}</span>
                                 <span class="text-green-700 dark:text-green-300 font-bold">Ahorro Total EV:</span>
@@ -1276,8 +1274,8 @@
                 recommendations.push("💰 Excelente ahorro vs gasolina - decisión muy acertada");
             }
             
-            if (results.totalTSO / results.inputs.price < 1.3) {
-                recommendations.push("📈 TSO muy eficiente - vehículo retiene bien su valor");
+            if (results.totalTCO / results.inputs.price < 1.3) {
+                recommendations.push("📈 TCO muy eficiente - vehículo retiene bien su valor");
             }
             
             const totalKm = inputs.annualKm * inputs.years;
@@ -1286,7 +1284,7 @@
             }
             
             if (recommendations.length === 0) {
-                recommendations.push("✅ Configuración balanceada - buen análisis de TSO");
+                recommendations.push("✅ Configuración balanceada - buen análisis de TCO");
             }
             
             if (recommendations.length > 0) {
@@ -1360,7 +1358,7 @@
             // Enhanced Header with new branding
             doc.setFontSize(20);
             doc.setTextColor('#003366');
-            doc.text(cleanText('TSO Electric Vehicles Experience'), 105, y, { align: 'center' });
+            doc.text(cleanText('TCO Electric Vehicles Experience'), 105, y, { align: 'center' });
             y += 6;
             doc.setFontSize(14);
             doc.text(cleanText('Analisis de Costo Total de Propiedad'), 105, y, { align: 'center' });
@@ -1395,13 +1393,13 @@
             y += 2;
             addLineItem('Total de Gastos:', `$${Math.round(totalGastos).toLocaleString()}`, true);
             addLineItem(`Valor Residual (${(results.resaleRate * 100).toFixed(0)}%):`, `-$${Math.round(results.residualValue).toLocaleString()}`);
-            addLineItem('TSO VEHICULO ELECTRICO:', `$${Math.round(costoDeUso).toLocaleString()}`, true);
+            addLineItem('TCO VEHICULO ELECTRICO:', `$${Math.round(costoDeUso).toLocaleString()}`, true);
             addLineItem('Costo por Kilometro:', `$${(costoDeUso/totalKm).toFixed(3)}`, true);
             y += 5;
 
             // ICE Comparison
             addSectionTitle('Comparacion con Vehiculo Gasolina');
-            addLineItem('TSO Vehiculo Gasolina:', `$${Math.round(ice.totalTSO).toLocaleString()}`);
+            addLineItem('TCO Vehiculo Gasolina:', `$${Math.round(ice.totalTCO).toLocaleString()}`);
             addLineItem('Costo/km Gasolina:', `$${ice.costPerKm.toFixed(3)}`);
             addLineItem('Combustible (con inflacion):', `$${Math.round(ice.fuelCost).toLocaleString()}`);
             addLineItem('Mantenimiento ICE:', `$${Math.round(ice.maintenanceCost).toLocaleString()}`);
@@ -1422,12 +1420,12 @@
             y = 280;
             doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text(cleanText('TSO Electric Vehicles Experience | Costa Rica 2025'), 105, y, { align: 'center' });
+            doc.text(cleanText('TCO Electric Vehicles Experience | Costa Rica 2025'), 105, y, { align: 'center' });
             y += 4;
-            doc.text(cleanText('Formula: Total de Gastos - Valor de Venta = TSO'), 105, y, { align: 'center' });
+            doc.text(cleanText('Formula: Total de Gastos - Valor de Venta = TCO'), 105, y, { align: 'center' });
 
-            doc.save(`TSO_ElectricVehiclesExperience_${results.inputs.model.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
-            showSuccessMessage('Reporte TSO Electric Vehicles Experience generado exitosamente.');
+            doc.save(`TCO_ElectricVehiclesExperience_${results.inputs.model.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
+            showSuccessMessage('Reporte TCO Electric Vehicles Experience generado exitosamente.');
         }
 
         // --- START THE APP ---
